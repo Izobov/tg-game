@@ -4,26 +4,33 @@
     import GiDiceSixFacesFive from 'svelte-icons/gi/GiDiceSixFacesFive.svelte'
     import FaList from 'svelte-icons/fa/FaList.svelte'
     import { Router, Link } from "svelte-routing";
-
+    function vibrate() {
+        if (navigator.vibrate) {
+            // вибрация на 200 миллисекунд
+            navigator.vibrate(200);
+        } else {
+            console.log("Ваш браузер не поддерживает API вибрации.");
+        }
+    }
 </script>
 <div class="bottom-menu">
     <Link to="/">
-        <div class="icon">
+        <div on:click={vibrate} class="icon">
             <GiDigDug  />
         </div>
     </Link>
     <Link to="/battle">
-        <div class="icon">
+        <div on:click={vibrate} class="icon">
             <GiDiceSixFacesFive  />
         </div>
     </Link>
     <Link to="/tournament">
-        <div class="icon">
+        <div on:click={vibrate} class="icon">
             <FaTrophy  />
         </div>
     </Link>
     <Link to="/tasks">
-        <div class="icon">
+        <div on:click={vibrate} class="icon">
             <FaList  />
         </div>
     </Link>   
@@ -42,8 +49,8 @@
         position: fixed;
         bottom: 0;
         left: 0;
+        height: 75px;
         width: 100%;
-        height: 50px;
         background-color: #333;
         color: white;
         display: flex;

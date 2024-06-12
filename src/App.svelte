@@ -31,6 +31,6 @@
     flex-direction: column;
     gap: 20px;
 
-    padding-bottom: 80px;
+    padding-bottom: 100px;
   }
 </style>
