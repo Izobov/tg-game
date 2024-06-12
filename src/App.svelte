@@ -1,48 +1,36 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import svelteLogo from "./assets/svelte.svg";
+  import viteLogo from "/vite.svg";
+  import Counter from "./lib/Counter.svelte";
+  import BottomMenu from "./components/BottomMenu.svelte";
+  import { Router, Link, Route } from "svelte-routing";
+  import MinePage from "./pages/MinePage.svelte";
+  import Tournament from "./pages/Tournament.svelte";
+  import Battle from "./pages/Battle.svelte";
+  import Taks from "./pages/Taks.svelte";
 </script>
 
-<main>
-  <div>
-    Helo there
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
-</main>
+<Router>
+  <main>
+    <Route path="/" component={MinePage} />
+    <Route path="/tournament" component={Tournament} />
+    <Route path="/battle" component={Battle} />
+    <Router path="/tasks" component={Taks} />
+  </main>
+  <BottomMenu />
+</Router>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
+  main {
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+    background-color: #242424;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    padding-bottom: 80px;
   }
 </style>
