@@ -1,14 +1,15 @@
 <script>
-  import { balance, mint } from "../balance";
+  import { balance, mint, isMining } from "../balance";
+  import Loader from "../components/Loader.svelte";
 </script>
 
 <h1>Mining</h1>
 <div class="mine-block">
     <div class="balance">
-      {$balance}
+      {$balance} RPS
     </div>
-    <button on:click={mint}>
-        MINT
+    <button on:click={mint} class:disable={$isMining}>
+        MINT RPS
     </button>
 </div>
 
@@ -40,5 +41,11 @@
     border: none;
     color: #d0adf0;
     cursor: pointer;
+
+    &.disable {
+      background-color: #5a5a5a;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
   }
 </style>

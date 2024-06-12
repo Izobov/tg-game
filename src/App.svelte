@@ -1,7 +1,4 @@
 <script lang="ts">
-  import svelteLogo from "./assets/svelte.svg";
-  import viteLogo from "/vite.svg";
-  import Counter from "./lib/Counter.svelte";
   import BottomMenu from "./components/BottomMenu.svelte";
   import { Router, Link, Route } from "svelte-routing";
   import MinePage from "./pages/MinePage.svelte";
@@ -23,14 +20,12 @@
 <style>
   main {
     box-sizing: border-box;
-    height: 100%;
+    height: calc(100% - 100px);
     width: 100%;
     padding: 20px;
     background-color: #242424;
     display: flex;
     flex-direction: column;
     gap: 20px;
-
-    padding-bottom: 100px;
   }
 </style>
