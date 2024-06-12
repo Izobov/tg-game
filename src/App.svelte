@@ -7,7 +7,7 @@
   import MinePage from "./pages/MinePage.svelte";
   import Tournament from "./pages/Tournament.svelte";
   import Battle from "./pages/Battle.svelte";
-  import Taks from "./pages/Taks.svelte";
+  import Tasks from "./pages/Tasks.svelte";
 </script>
 
 <Router>
@@ -15,7 +15,7 @@
     <Route path="/" component={MinePage} />
     <Route path="/tournament" component={Tournament} />
     <Route path="/battle" component={Battle} />
-    <Router path="/tasks" component={Taks} />
+    <Route path="/tasks" component={Tasks} />
   </main>
   <BottomMenu />
 </Router>
