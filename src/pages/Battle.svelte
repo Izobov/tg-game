@@ -4,119 +4,126 @@
   import PaperImg from "../assets/paper.png";
   import RockImg from "../assets/rock.png";
   import ScissorsImg from "../assets/scissors.png";
+  import websocketStore from "svelte-websocket-store";
+  import { user } from "../stores/user";
+
+  let store = websocketStore("ws://localhost:3000/battle/connect");
+
   let loading = true;
-  let round = 1;
-  let scoreUser = 0;
-  let scoreOpponent = 0;
+  let start = false;
   let choosing = true;
   let selected = null;
   let opponentSelect = null;
   let waitingOpponent = false;
-  let message = "";
-  let winner = false;
   let ended = false;
+  let startagain = false;
+  let prevBattleMessage = "";
   const options = [
     { name: "rock", img: RockImg, win: "scissors", lose: "paper" },
     { name: "paper", img: PaperImg, win: "rock", lose: "scissors" },
     { name: "scissors", img: ScissorsImg, win: "paper", lose: "rock" },
   ];
-  onMount(() => {
-   load();
-  });
-  function load () {
-    setTimeout(() => {
-      loading = false;
-    }, 2000);
-  }
-  function choose(option) {
-    choosing = false;
-    selected = option;
+  let opponent;
+  $: response = $store;
+  let round, type, message, score, opponentNumber;
+  $: ({ type } = response || {});
+  $: if (type === "info") {
+    ({ message } = response);
     waitingOpponent = true;
+  }
+
+  $: if (type === "end") {
+    ({ round, score } = response);
+    const { prevRound, battle } = response;
+    calculateMatch(prevRound);
+    store = websocketStore("ws://localhost:3000/battle/connect");
     setTimeout(() => {
-      opponentChoose();
-    }, 2000);
+      const winnerId = battle.winnerId;
+      startagain = true;
+      prevBattleMessage =
+        winnerId === $user.id
+          ? "You win this battle!"
+          : "You lose this battle!";
+      loading = true;
+      opponentSelect = null;
+      selected = null;
+      choosing = true;
+      start = false;
+    }, 3000);
   }
 
-  function reset() {
-    scoreUser = 0;
-    scoreOpponent = 0;
-    round = 1;
-    selected = null;
-    opponentSelect = null;
-    message = "";
-    choosing = true;
-    ended = false;
-    load();
-  }
-
-  function opponentChoose() {
+  $: if (type === "match") {
     waitingOpponent = false;
-    opponentSelect = options[Math.floor(Math.random() * options.length)];
-    setTimeout(() => {
-      startRound();
-    }, 500);
-  }
-  let prize = 0;
-  function animateBalance() {
-    if (winner) {
-      while (prize !== 100) {
-        prize++;
-      }
-    } else {
-      while (prize !== -50) {
-        prize--;
-      }
-    }
-  }
-
-  function summarize() {
-    winner = scoreUser === 3;
-    ended = true;
-    message = `You ${winner ? "win" : "lose"}`;
-    animateBalance();
-  }
-
-  function startRound() {
-    if (selected.win === opponentSelect.name) {
-      scoreUser++;
-      message = "You win!";
-    } else if (selected.lose === opponentSelect.name) {
-      scoreOpponent++;
-      message = "You lose!";
-    } else {
-      message = "Draw!";
-    }
-    if (scoreOpponent === 3 || scoreUser === 3) {
-      summarize();
-      return
-    }
-    round++;
+    ({ round, score } = response);
+    const { prevRound } = response;
+    calculateMatch(prevRound);
     setTimeout(() => {
       opponentSelect = null;
       message = "";
       selected = null;
       choosing = true;
-    }, 2000);
+    }, 3000);
   }
-  // your script goes here
+  $: if (!start && type === "start") {
+    startMatch();
+  }
+
+  function calculateMatch(prevRound) {
+    opponentSelect = options.find((o) => o.name === prevRound[opponentNumber]);
+    message = prevRound.isDraw
+      ? "Draw!"
+      : prevRound.winnerId === $user.id
+        ? "You win this round!"
+        : "You lose this round!";
+  }
+
+  function startMatch() {
+    opponent = $store.user;
+    ({ round, score } = response);
+    opponentNumber =
+      round.user1Id === $user.id
+        ? "user2Choice"
+        : "user1Choice";
+    setTimeout(() => {
+      start = true;
+    }, 1000);
+  }
+  async function connect() {
+    store.set({ type: "init", user: $user });
+  }
+
+  function choose(option) {
+    store.set({ type: "choice", choice: option.name });
+    choosing = false;
+    selected = option;
+  }
 </script>
 
 <h1>Battle</h1>
 
-{#if loading}
+{#if !start}
   <div class="loader-wrapp">
-    <span> looking for opponent </span>
-    <Loader />
+    {#if startagain && prevBattleMessage}
+      <span> {prevBattleMessage}</span>
+    {/if}
+    <button on:click={connect}>Start {startagain ? "again" : ""}</button>
+    {#if response?.type === "waiting"}
+      <span> {response.message}</span>
+      <Loader />
+    {/if}
+    {#if response?.type === "start"}
+      <span> {response.message} </span>
+    {/if}
   </div>
 {:else}
   <div class="battle-wrap">
     <div class="round">
-      Round: {round}
+      Round: {round?.roundNumber || 1}
     </div>
     <div class="participants">
       <div class="participant">
         <div class="score">
-          You: {scoreUser}
+          You: {score[$user.id]}
         </div>
         <div class="selected-option">
           {#if selected}
@@ -136,7 +143,7 @@
       </div>
       <div class="participant">
         <div class="score">
-          User1: {scoreOpponent}
+          User1: {score[opponent?.id]}
         </div>
         <div class="selected-option">
           {#if opponentSelect}
@@ -173,20 +180,18 @@
     <div class="ended-modal">
       <span class="message">{message}</span>
       <span class="token">{prize} RPS</span>
-      <button on:click={reset}>
-        start again
-      </button>
+      <button on:click={reset}> start again </button>
     </div>
   </div>
   <!-- content here -->
 {/if}
 
 <style>
-    .ended-modal {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
+  .ended-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
   .select-placeholder {
     width: 100px;
     height: 200px;

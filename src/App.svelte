@@ -5,6 +5,26 @@
   import Tournament from "./pages/Tournament.svelte";
   import Battle from "./pages/Battle.svelte";
   import Tasks from "./pages/Tasks.svelte";
+  import { onMount } from "svelte";
+  import axios from "axios"
+  import { user } from "./stores/user";
+  import { get, post } from "./utils/axios_helper";
+  import { mining } from "./stores/mining_store";
+  
+  onMount(() => {
+    init();
+
+  });
+
+  async function init() {
+    get('/mining/config').then(({data}) => {
+        mining.set(data);
+    })
+    const data = await post("http://localhost:3000/auth/verify", {initData: window.Telegram.WebApp.initData});
+    // const  u = parse(data.data);
+    user.set(data.data);
+    window.Telegram.WebApp.ready();
+  }
 </script>
 
 <Router>
@@ -19,7 +39,6 @@
 
 <style>
   main {
-    box-sizing: border-box;
     height: calc(100% - 100px);
     width: 100%;
     padding: 20px;

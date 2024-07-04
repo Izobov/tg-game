@@ -21,7 +21,7 @@ body {
   display: flex;
   place-items: center;
   width: 100vw;
-  height: 750px;
+  height: 100vh;
 }
 
 h1 {
@@ -35,8 +35,9 @@ h1 {
 
 #app {
   width: 100%;
-  max-width: 1280px;
   height: 100%;
   margin: 0 auto;
   text-align: center;
+  max-width: 100vh;
+  overflow-x: hidden;
 }

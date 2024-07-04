@@ -21,6 +21,10 @@
     "vite": "^5.2.0"
   },
   "dependencies": {
-    "svelte-icons": "^2.1.0"
+    "axios": "^1.7.2",
+    "date-fns": "^3.6.0",
+    "json-bigint": "^1.0.0",
+    "svelte-icons": "^2.1.0",
+    "svelte-websocket-store": "^1.1.34"
   }
 }
