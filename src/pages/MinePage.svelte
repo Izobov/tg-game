@@ -70,12 +70,14 @@
 </script>
 
 <h1>Mining</h1>
+<div class="bw">
+  <button on:click={() => feedback("light")}>Light</button>
+  <button on:click={() => feedback("medium")}>Medium</button>
+  <button on:click={() => feedback("heavy")}>Heavy</button>
+  <button on:click={() => feedback("rigid")}>rigid</button>
+  <button on:click={() => feedback("soft")}>soft</button>
+</div>
 <div class="mine-block">
-  <button on:click={() => feedback('light')}>Light</button>
-  <button on:click={() => feedback('medium')}>Medium</button>
-  <button on:click={() => feedback('heavy')}>Heavy</button>
-  <button on:click={() => feedback('rigid')}>rigid</button>
-  <button on:click={() => feedback('soft')}>soft</button>
   <RoundProgress
     on:click={handleClick}
     count={(minted * 100) / tokensPerClick}
@@ -107,6 +109,14 @@
 </div>
 
 <style lang="scss">
+  .bw {
+    display: flex;
+    gap: 10px;
+
+    button {
+      padding:  10px 15px;
+    }
+  }
   .mine-block {
     display: flex;
     flex-direction: column;
