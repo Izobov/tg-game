@@ -8,8 +8,14 @@
   import { addHours } from "date-fns/addHours";
   import { differenceInSeconds } from "date-fns/differenceInSeconds";
   import { isAfter } from "date-fns/isAfter";
-  $: ({ tokenBalance, isMining, lastMining } = $user);
-  $: ({ miningSpeed, tokensPerClick } = $mining);
+  import RoundProgress from "../lib/RoundProgress.svelte";
+  import Timer from "../lib/Timer.svelte";
+  $: ({
+    tokenBalance,
+    isMining,
+    lastMining = addHours(new Date(), -4),
+  } = $user);
+  $: ({ miningSpeed = 8, tokensPerClick = 100 } = $mining);
 
   async function mint() {
     const { data } = await post("/mining/mint", { id: $user.id });
@@ -53,27 +59,51 @@
       user.update((u) => ({ ...u, ...data.user }));
     });
   }
+
+  function handleClick() {
+    if (!isMining) mint();
+    if (isMining && minted >= tokensPerClick) claim();
+  }
+  function feedback(type) {
+    window.Telegram.WebApp.impactOccurred(type);
+  }
 </script>
 
 <h1>Mining</h1>
 <div class="mine-block">
-  <div class="balance">
-    {tokenBalance} RPS
-  </div>
-  {#if isMining && minted < tokensPerClick}
-    <div class="mining-button" class:disable={isMining}>
-      {minted} RPS
+  <button on:click={() => feedback('light')}>Light</button>
+  <button on:click={() => feedback('medium')}>Medium</button>
+  <button on:click={() => feedback('heavy')}>Heavy</button>
+  <button on:click={() => feedback('rigid')}>rigid</button>
+  <button on:click={() => feedback('soft')}>soft</button>
+  <RoundProgress
+    on:click={handleClick}
+    count={(minted * 100) / tokensPerClick}
+    size={250}
+  >
+    <div class="wrapper" class:disabled={isMining && minted < tokensPerClick}>
+      {#if isMining && minted < tokensPerClick}
+        <div class="tokens">
+          {minted} RPS
+        </div>
+        <Timer end={endOfTimer} />
+        <!-- <div class="mining-button" class:disable={isMining}> -->
+        <!-- </div> -->
+      {:else if isMining}
+        <!-- <button class="mining-button" on:click={claim}> -->
+        <div class="tokens">
+          {minted} RPS
+        </div>
+        CLAIM
+        <!-- </button> -->
+        <!-- else content here -->
+      {:else}
+        <!-- <button class="mining-button" on:click={mint} class:disable={isMining}> -->
+        START
+        <!-- </button> -->
+      {/if}
     </div>
-  {:else if isMining}
-    <button class="mining-button" on:click={claim}>
-      CLAIM {minted} RPS
-    </button>
-    <!-- else content here -->
-  {:else}
-    <button class="mining-button" on:click={mint} class:disable={isMining}>
-      {minted} RPS
-    </button>
-  {/if}
+  </RoundProgress>
 </div>
 
 <style lang="scss">
@@ -109,6 +139,23 @@
       background-color: #5a5a5a;
       pointer-events: none;
       cursor: not-allowed;
+    }
+  }
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    font-size: 30px;
+    font-weight: 600;
+
+    &.disabled {
+      color: #5a5a5a;
+    }
+    .tokens {
+      font-size: 24px;
+      display: flex;
+      background-color: unset;
+      flex-direction: column;
     }
   }
 </style>
