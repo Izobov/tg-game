@@ -10,6 +10,7 @@
   import { user } from "./stores/user";
   import { get, post } from "./utils/axios_helper";
   import { mining } from "./stores/mining_store";
+  import BattleV2 from "./pages/BattleV2.svelte";
   
   onMount(() => {
     init();
@@ -21,6 +22,7 @@
         mining.set(data);
     })
     const data = await post("http://localhost:3000/auth/verify", {initData: window.Telegram.WebApp.initData});
+    alert(JSON.stringify(data))
     // const  u = parse(data.data);
     user.set(data.data);
     window.Telegram.WebApp.ready();
@@ -32,6 +34,7 @@
     <Route path="/" component={MinePage} />
     <Route path="/tournament" component={Tournament} />
     <Route path="/battle" component={Battle} />
+    <Route path="/battle2" component={BattleV2} />
     <Route path="/tasks" component={Tasks} />
   </main>
   <BottomMenu />

@@ -1,17 +1,22 @@
 <script>
   import { onMount } from "svelte";
   import Loader from "../components/Loader.svelte";
-  import PaperImg from "../assets/paper.png";
-  import RockImg from "../assets/rock.png";
-  import ScissorsImg from "../assets/scissors.png";
+  import PaperImg from "../assets/paper.svelte";
+  import RockImg from "../assets/rock.svelte";
+  import ScissorsImg from "../assets/scissors.svelte";
   import websocketStore from "svelte-websocket-store";
   import { user } from "../stores/user";
+
+
+
+
 
   let store = websocketStore("ws://localhost:3000/battle/connect");
 
   let loading = true;
-  let start = false;
-  let choosing = true;
+  // let start = false;
+  let start = true;
+  let choosing = false;
   let selected = null;
   let opponentSelect = null;
   let waitingOpponent = false;
@@ -25,7 +30,7 @@
   ];
   let opponent;
   $: response = $store;
-  let round, type, message, score, opponentNumber;
+  let round = {}, type, message, score = {}, opponentNumber;
   $: ({ type } = response || {});
   $: if (type === "info") {
     ({ message } = response);
@@ -187,6 +192,11 @@
 {/if}
 
 <style>
+  .img :global(svg){
+    stroke: #8e54e9;
+    fill: #242424;
+    filter: drop-shadow( 3px 5px 2px #4776e6);
+  }
   .ended-modal {
     display: flex;
     flex-direction: column;

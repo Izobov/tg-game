@@ -16,8 +16,8 @@
     lastMining = addHours(new Date(), -4),
   } = $user);
   $: ({ miningSpeed = 8, tokensPerClick = 100 } = $mining);
-
   async function mint() {
+    feedback("medium");
     const { data } = await post("/mining/mint", { id: $user.id });
     user.update((u) => ({ ...u, ...data.user }));
   }
@@ -35,7 +35,7 @@
       clearInterval(timer);
       minted = tokensPerClick;
     } else {
-      minted = alreadyMinted;
+      minted = parseFloat(alreadyMinted.toFixed(4));
       startMiningTimer();
     }
   }
@@ -47,7 +47,7 @@
         clearInterval(timer);
         minted = tokensPerClick;
       } else {
-        minted = parseFloat((minted + coinPerSecond).toFixed(4));
+        minted = (+minted + coinPerSecond).toFixed(4);
       }
     }, 1000);
   }
@@ -65,18 +65,11 @@
     if (isMining && minted >= tokensPerClick) claim();
   }
   function feedback(type) {
-    window.Telegram.WebApp.impactOccurred(type);
+    window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
   }
 </script>
 
 <h1>Mining</h1>
-<div class="bw">
-  <button on:click={() => feedback("light")}>Light</button>
-  <button on:click={() => feedback("medium")}>Medium</button>
-  <button on:click={() => feedback("heavy")}>Heavy</button>
-  <button on:click={() => feedback("rigid")}>rigid</button>
-  <button on:click={() => feedback("soft")}>soft</button>
-</div>
 <div class="mine-block">
   <RoundProgress
     on:click={handleClick}
@@ -86,7 +79,10 @@
     <div class="wrapper" class:disabled={isMining && minted < tokensPerClick}>
       {#if isMining && minted < tokensPerClick}
         <div class="tokens">
-          {minted} RPS
+          <span>
+            {minted}
+          </span>
+          RPS
         </div>
         <Timer end={endOfTimer} />
         <!-- <div class="mining-button" class:disable={isMining}> -->
@@ -109,14 +105,6 @@
 </div>
 
 <style lang="scss">
-  .bw {
-    display: flex;
-    gap: 10px;
-
-    button {
-      padding:  10px 15px;
-    }
-  }
   .mine-block {
     display: flex;
     flex-direction: column;
@@ -155,6 +143,11 @@
     display: flex;
     flex-direction: column;
     color: #fff;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
     font-size: 30px;
     font-weight: 600;
 
@@ -165,7 +158,10 @@
       font-size: 24px;
       display: flex;
       background-color: unset;
-      flex-direction: column;
+      align-items: center;
+      width: 85%;
+      justify-content: space-between;
+      gap: 5px;
     }
   }
 </style>

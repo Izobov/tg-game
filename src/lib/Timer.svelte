@@ -26,19 +26,22 @@
     });
   
     function calculateRemainingTime() {
-      const totalSeconds = differenceInSeconds(end, currentTime);
-      const duration = intervalToDuration({ start: 0, end: totalSeconds * 1000 });
-  
+      const duration = intervalToDuration({ start: currentTime, end });
+    
       return {
-        hours: duration.hours,
-        minutes: duration.minutes,
-        seconds: duration.seconds,
-        totalSeconds: totalSeconds
+        hours: duration.hours || 0,
+        minutes: duration.minutes || 0,
+        seconds: duration.seconds || 0,
       };
+    }
+
+    function addDiggits(number) {
+        if(number >= 10) return `${number}`;
+        return `0${number}`
     }
   </script>
   
   <div>
-    <p>{remainingTime.hours}:{remainingTime.minutes}:{remainingTime.seconds}</p>
+    {addDiggits(remainingTime.hours)}:{addDiggits(remainingTime.minutes)}:{addDiggits(remainingTime.seconds)}
   </div>
   
