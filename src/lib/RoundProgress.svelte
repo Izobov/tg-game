@@ -81,13 +81,15 @@
       width: 100%;
       padding: 20px;
       border-radius: 50%;
-      box-shadow: 4px 1px 6px 1.5px #2e285b;
-
+      // box-shadow: 4px 1px 6px 1.5px #9e9d9d;
+      background: #434242;
+      
       .inner {
         height: 100%;
         width: 100%;
         border-radius: 50%;
-        box-shadow: inset 6px -1px 10px 3px #2e285b;
+        box-shadow: inset 0px 0px 29px 6px #040a19;
+        background: #242424;
         display: flex;
         justify-content: center;
         align-items: center;
