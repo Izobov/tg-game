@@ -24,6 +24,7 @@
   }
   let minted = 0;
   let timer = 0;
+  let animate = false;
 
   $: miningSpeedIns = hoursToSeconds(miningSpeed);
   $: coinPerSecond = tokensPerClick / miningSpeedIns;
@@ -63,8 +64,27 @@
   }
 
   function handleClick() {
+    // animation();
     if (!isMining) mint();
     if (isMining && minted >= tokensPerClick) claim();
+  }
+  let animation_timer = 0;
+  function animation() {
+    if (animation_timer) {
+      clearTimeout(animation_timer);
+      animate = false;
+    }
+
+    animate = true;
+    animation_timer = setTimeout(() => {
+      animate = false;
+    }, 150);
+  }
+  function down() {
+    animate = true;
+  }
+  function up() {
+    animate = false;
   }
   function feedback(type) {
     window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
@@ -72,13 +92,25 @@
 </script>
 
 <h1>Mining</h1>
-<div class="mine-block">
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+  class="mine-block"
+  class:animate
+  on:mousedown={down}
+  on:touchstart={down}
+  on:touchend={up}
+  on:mouseup={up}
+>
   <RoundProgress
     on:click={handleClick}
     count={(minted * 100) / tokensPerClick}
     size={250}
   >
-    <div class="wrapper" class:disabled={isMining && minted < tokensPerClick}>
+    <div
+      class="wrapper"
+      class:animate
+      class:disabled={isMining && minted < tokensPerClick}
+    >
       {#if isMining && minted < tokensPerClick}
         <div class="tokens">
           <span>
@@ -107,6 +139,9 @@
 </div>
 
 <style lang="scss">
+  :global(.animate .inner) {
+    box-shadow: inset 0px 0px 19px 8px rgb(14 13 15 / 73%) !important;
+  }
   .mine-block {
     display: flex;
     flex-direction: column;
@@ -143,6 +178,7 @@
   }
   .wrapper {
     display: flex;
+    transform: scale(1);
     flex-direction: column;
     color: #fff;
     width: 100%;
@@ -152,6 +188,10 @@
     padding: 30px;
     font-size: 30px;
     font-weight: 600;
+
+    &.animate {
+      transform: scale(0.9);
+    }
 
     &.disabled {
       color: #5a5a5a;

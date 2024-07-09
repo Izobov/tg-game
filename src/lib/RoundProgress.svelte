@@ -81,6 +81,7 @@
       width: 100%;
       padding: 20px;
       border-radius: 50%;
+      box-shadow:  0px 0px 29px 6px #0e0d0f85;
       // box-shadow: 4px 1px 6px 1.5px #9e9d9d;
       background: #434242;
       
@@ -88,11 +89,12 @@
         height: 100%;
         width: 100%;
         border-radius: 50%;
-        box-shadow: inset 0px 0px 29px 6px #040a19;
+        box-shadow: 0px 0px 12px 6px rgb(14 13 15);
         background: #242424;
         display: flex;
         justify-content: center;
         align-items: center;
+        transition: all 100ms ease;
       }
     }
 
