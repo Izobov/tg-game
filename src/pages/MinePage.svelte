@@ -10,7 +10,7 @@
   import { isAfter } from "date-fns/isAfter";
   import RoundProgress from "../lib/RoundProgress.svelte";
   import Timer from "../lib/Timer.svelte";
-  import particles from "../stores/particles";
+  import particles, { particlesMode } from "../stores/particles";
   $: ({
     tokenBalance,
     isMining,
@@ -55,6 +55,7 @@
   }
 
   function claim() {
+    $particlesMode = "click";
     $particles.start();
     clearInterval(timer);
     post("/mining/claim", { id: $user.id }).then(({ data }) => {

@@ -10,6 +10,7 @@
   import Scissors from "../assets/scissors.svelte";
   import Paper from "../assets/paper.svelte";
   import { feedback } from "../utils/telegram";
+  import particles, { particlesMode } from "../stores/particles";
 
   let store = websocketStore("ws://localhost:3000/battle/connect");
 
@@ -32,7 +33,7 @@
   let round = {},
     type,
     message,
-    score = { home: 0, away: 1 },
+    score = { home: 0, away: 0 },
     opponentNumber;
   $: ({ type } = response || {});
   $: if (type === "info") {
@@ -45,13 +46,19 @@
     const { prevRound, battle } = response;
     calculateMatch(prevRound);
     store = websocketStore("ws://localhost:3000/battle/connect");
+    feedback("heavy");
+    const winnerId = battle.winnerId;
+    startagain = true;
+    const isWinner = winnerId === $user.id;
+    prevBattleMessage = isWinner
+      ? "You win this battle!"
+      : "You lose this battle!";
+    if (isWinner) {
+      $particlesMode = "side";
+      $particles.start();
+    }
     setTimeout(() => {
-      const winnerId = battle.winnerId;
-      startagain = true;
-      prevBattleMessage =
-        winnerId === $user.id
-          ? "You win this battle!"
-          : "You lose this battle!";
+      $particles.stop();
       loading = true;
       opponentSelect = null;
       selected = null;
@@ -83,6 +90,7 @@
       : prevRound.winnerId === $user.id
         ? "You win this round!"
         : "You lose this round!";
+    feedback("light");
   }
 
   function startMatch() {
@@ -143,8 +151,7 @@
       {/each}
     </div>
   </div>
-  <div class="field-block">
-    <span class="message"> Waiting opponent</span>
+  <div class="field-block info">
     {#if startagain && prevBattleMessage}
       <span class="message"> {prevBattleMessage}</span>
     {/if}
@@ -154,7 +161,7 @@
       >
     {/if}
     {#if response?.type === "waiting"}
-      <span  class="message"> {response.message}</span>
+      <span class="message"> {response.message}</span>
       <Loader />
     {/if}
     {#if response?.type === "start"}
@@ -230,6 +237,7 @@
     align-items: center;
     justify-content: space-between;
     flex-grow: 1;
+    gap: 10px;
     width: 100%;
 
     .field-block {
@@ -239,6 +247,13 @@
       align-items: center;
       width: 100%;
       gap: 20px;
+
+      .info {
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
 
       .score-wrapper {
         display: flex;

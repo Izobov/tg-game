@@ -1,7 +1,8 @@
 <h1>Tournament</h1>
 
 <div class="wrapper">
-    <div class="tournament">
+    <h2>SOON</h2>
+    <!-- <div class="tournament">
         <div class="info">
             <div class="name">Binance</div>
             <div class="users">200k users</div>
@@ -11,13 +12,12 @@
             <div>20 000 USDT</div>
         </div>
     </div>
-    <div class="tournament"></div>
+    <div class="tournament"></div> -->
 </div>
 
 <style>
     .wrapper {
         color: white;
-        background-color: #4b4b4b;
         flex-grow: 1;
         width: 100%;
         display: flex;

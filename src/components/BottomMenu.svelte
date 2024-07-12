@@ -4,6 +4,7 @@
     import GiDiceSixFacesFive from 'svelte-icons/gi/GiDiceSixFacesFive.svelte'
     import FaList from 'svelte-icons/fa/FaList.svelte'
     import { Router, Link } from "svelte-routing";
+  import { feedback } from '../utils/telegram';
     function vibrate() {
         if (navigator.vibrate) {
             // вибрация на 200 миллисекунд
@@ -14,22 +15,22 @@
     }
 </script>
 <div class="bottom-menu">
-    <Link to="/">
+    <Link on:click={() => feedback('light')}  to="/">
         <div on:click={vibrate} class="icon">
             <GiDigDug  />
         </div>
     </Link>
-    <Link to="/battle">
+    <Link on:click={() => feedback('light')} to="/battle">
         <div on:click={vibrate} class="icon">
             <GiDiceSixFacesFive  />
         </div>
     </Link>
-    <Link to="/tournament">
+    <Link on:click={() => feedback('light')} to="/tournament">
         <div on:click={vibrate} class="icon">
             <FaTrophy  />
         </div>
     </Link>
-    <Link to="/tasks">
+    <Link on:click={() => feedback('light')} to="/tasks">
         <div on:click={vibrate} class="icon">
             <FaList  />
         </div>
@@ -37,12 +38,16 @@
 </div>
 
 <style lang="scss">
+    :global([aria-current="page"] .icon) {
+        color: #a077e4 !important;
+    }
     .icon {
         width: 20px;
         height: 20px;
         cursor: pointer;
+        color:  #d2ccdd;
         &:hover {
-            color:#5a5a5a
+            color:#a077e4;
         }
     }
     .bottom-menu {

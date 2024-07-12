@@ -42,8 +42,8 @@
     <Confetti />
     <Route path="/" component={MinePage} />
     <Route path="/tournament" component={Tournament} />
-    <Route path="/battle" component={Battle} />
-    <Route path="/battle2" component={BattleV2} />
+    <!-- <Route path="/battle" component={Battle} /> -->
+    <Route path="/battle" component={BattleV2} />
     <Route path="/tasks" component={Tasks} />
   </main>
   <BottomMenu />
