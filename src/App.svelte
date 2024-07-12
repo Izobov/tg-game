@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Header from './components/Header.svelte';
   import BottomMenu from "./components/BottomMenu.svelte";
   import { Router, Link, Route } from "svelte-routing";
   import MinePage from "./pages/MinePage.svelte";
@@ -39,6 +40,7 @@
 
 <Router>
   <main>
+    <Header />
     <Confetti />
     <Route path="/" component={MinePage} />
     <Route path="/tournament" component={Tournament} />

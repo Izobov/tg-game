@@ -1,20 +1,11 @@
+import { cubicOut } from "svelte/easing";
+import { tweened } from "svelte/motion";
 import { writable } from "svelte/store";
 
-export const balance = writable(0);
+export const balance = tweened(0, {
+    duration: 1500,
+    easing: cubicOut,
+  });
 export const isMining = writable(false);
-let interval: number | undefined;
-export function mint() {
-    if (interval) {
-        return;
-    }
-    const start = Date.now();
-    isMining.set(true);
-    interval = setInterval(() => {
-        const delta = Date.now() - start;
-        balance.update((b) => b + 1);
-        if (delta > 10000) {
-            clearInterval(interval);
-            isMining.set(false);
-        }
-    }, 1000);
-} 
+
+export function animateCounter(){}
