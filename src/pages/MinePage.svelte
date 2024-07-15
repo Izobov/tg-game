@@ -30,6 +30,10 @@
   $: coinPerSecond = tokensPerClick / miningSpeedIns;
   $: endOfTimer = addHours(lastMining, miningSpeed);
 
+  $: if (isMining && minted >= tokensPerClick) {
+    $particlesMode = "click";
+    $particles.start();
+  }
   $: if (isMining) {
     const alreadyMinted =
       coinPerSecond * differenceInSeconds(new Date(), lastMining);
@@ -37,7 +41,7 @@
       clearInterval(timer);
       minted = tokensPerClick;
     } else {
-      minted = parseFloat(alreadyMinted.toFixed(4));
+      minted = alreadyMinted;
       startMiningTimer();
     }
   }
@@ -49,14 +53,13 @@
         clearInterval(timer);
         minted = tokensPerClick;
       } else {
-        minted = (+minted + coinPerSecond).toFixed(4);
+        minted = +minted + coinPerSecond;
       }
     }, 1000);
   }
 
   function claim() {
-    $particlesMode = "click";
-    $particles.start();
+    setTimeout(() => {$particles.stop()}, 1000)
     clearInterval(timer);
     post("/mining/claim", { id: $user.id }).then(({ data }) => {
       minted = 0;
@@ -82,6 +85,7 @@
     }, 150);
   }
   function down() {
+    if (isMining) return;
     animate = true;
   }
   function up() {
@@ -115,7 +119,7 @@
       {#if isMining && minted < tokensPerClick}
         <div class="tokens">
           <span>
-            {minted}
+            {minted.toFixed(2)}
           </span>
           RPS
         </div>
@@ -142,6 +146,9 @@
 <style lang="scss">
   :global(.animate .inner) {
     box-shadow: inset 0px 0px 19px 8px rgb(14 13 15 / 73%) !important;
+  }
+  h1 {
+    margin: 0;
   }
   .mine-block {
     display: flex;

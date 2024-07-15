@@ -1,33 +1,35 @@
 <script>
-  import { balance } from "./../balance.ts";
+  import { coins } from "./../stores/coins";
+  import { balance } from "./../balance";
   import Wallet from "../assets/wallet.svelte";
   import Coin from "../assets/coin.svelte";
   import { user } from "../stores/user";
 
-  $: ({ tokenBalance = 100 } = $user);
-  let coins = Array(10);
+  $: ({ tokenBalance = 0, first_name } = $user);
+
   $: balance.set(tokenBalance);
   let animate = false;
-  setTimeout(() => {
-    balance.update(v => v +50);
-    animate = true;
-    setTimeout(() => {
-      animate = false;
-
-    }, 1000);
-  }, 5000);
+  let fade = false;
 </script>
 
 <div class="header">
-  <div class="name">@ssgase</div>
+  <div class="name">{first_name}</div>
   <div class="balance">
     {$balance.toFixed(0)}RPS
     <div class="wallet-wrapper">
-      {#each coins as coin, index}
-        <div class="coin"  class:animate style="--i: {index}; --random-delay: {Math.random() * 0.2}s; --random-offset: {Math.random() * 50 - 10}px;">
-          <Coin />
-        </div>
-      {/each}
+      {#if $coins.show}
+        {#each Array(10) as coin, index}
+          <div
+            class="coin"
+            class:animate
+            class:fade
+            style="--i: {index}; --random-delay: {Math.random() *
+              0.2}s; --random-offset: {Math.random() * 50 - 10}px;"
+          >
+            <Coin />
+          </div>
+        {/each}
+      {/if}
       <Wallet />
     </div>
   </div>
@@ -58,13 +60,7 @@
           position: absolute;
           top: 400px;
           left: calc(-150px + var(--random-offset));
-          transition: all 1s ease-out;
-          transition-delay: calc(var(--i) * 0.1s);
           scale: 1;
-
-          &.hide {
-            display: none;
-          }
 
           &.animate {
             left: 0;
@@ -72,6 +68,28 @@
             transform: translate(-20%, -20%);
             z-index: 10;
             scale: 0.5;
+            transition: all 1s ease-out;
+            transition-delay: calc(var(--i) * 0.1s);
+
+            &.fade {
+              transition-delay: calc(1s + var(--i) * 0.1s);
+
+              transition: opacity 1s ease-out;
+              opacity: 0;
+            }
+            // animation: fade-out 1s ease-out forwards;
+          }
+
+          @keyframes fade-out {
+            0% {
+              opacity: 1;
+            }
+            98% {
+              opacity: 0.5;
+            }
+            100% {
+              opacity: 0;
+            }
           }
         }
       }

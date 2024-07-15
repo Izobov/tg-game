@@ -11,6 +11,7 @@
   import Paper from "../assets/paper.svelte";
   import { feedback } from "../utils/telegram";
   import particles, { particlesMode } from "../stores/particles";
+  import 'animate.css/animate.css';
 
   let store = websocketStore("ws://localhost:3000/battle/connect");
 
@@ -32,11 +33,11 @@
   $: response = $store;
   let round = {},
     type,
-    message,
+    message = "",
     score = { home: 0, away: 0 },
     opponentNumber;
   $: ({ type } = response || {});
-  $: if (type === "info") {
+  $: if (["info", "waiting"].includes(type)) {
     ({ message } = response);
     waitingOpponent = true;
   }
@@ -44,7 +45,7 @@
   $: if (type === "end") {
     ({ round, score } = response);
     const { prevRound, battle } = response;
-    calculateMatch(prevRound);
+    calculateRound(prevRound);
     store = websocketStore("ws://localhost:3000/battle/connect");
     feedback("heavy");
     const winnerId = battle.winnerId;
@@ -64,26 +65,29 @@
       selected = null;
       choosing = true;
       start = false;
+      score = { home: 0, away: 0 };
     }, 3000);
   }
 
-  $: if (type === "match") {
+  $: if (type === "round") {
     waitingOpponent = false;
-    ({ round, score } = response);
-    const { prevRound } = response;
-    calculateMatch(prevRound);
+    ({ round } = response);
+    const { prevRound, score: s } = response;
+    score = {...s}
+    calculateRound(prevRound);
     setTimeout(() => {
       opponentSelect = null;
-      message = "";
+      message = "Make your choice";
       selected = null;
       choosing = true;
     }, 3000);
   }
-  $: if (!start && type === "start") {
+  $: if (type === "start") {
     startMatch();
   }
+  $: console.log(score)
 
-  function calculateMatch(prevRound) {
+  function calculateRound(prevRound) {
     opponentSelect = options.find((o) => o.name === prevRound[opponentNumber]);
     message = prevRound.isDraw
       ? "Draw!"
@@ -97,21 +101,25 @@
     opponent = $store.user;
     ({ round, score } = response);
     opponentNumber = round.user1Id === $user.id ? "user2Choice" : "user1Choice";
+    message = "Make your choice"
     setTimeout(() => {
       start = true;
     }, 1000);
   }
   async function connect() {
+    message = "";
+    startagain = false;
+    prevBattleMessage = "";
+    start = true;
     store.set({ type: "init", user: $user });
   }
 
   function choose(option) {
     feedback("medium");
     selected = option;
-    // store.set({ type: "choice", choice: option.name });
-    // choosing = false;
-    score.home += 1;
-    opponentSelect = options[Math.floor(Math.random() * 3)];
+    store.set({ type: "choice", choice: option.name });
+    choosing = false;
+   
   }
 </script>
 
@@ -136,7 +144,7 @@
   <div class="field-block">
     <div class="score-wrapper">
       {#each [1, 2, 3] as item}
-        <div class="score-indicator" class:win={score.away >= item} />
+        <div class="score-indicator" class:win={score[opponent?.id] >= item} />
       {/each}
     </div>
     <div class="options-wrapper">
@@ -160,12 +168,12 @@
         >Start {startagain ? "again" : ""}</button
       >
     {/if}
-    {#if response?.type === "waiting"}
-      <span class="message"> {response.message}</span>
+    {#if ["waiting"].includes(response?.type)}
+      <span class="message"> {message}</span>
       <Loader />
     {/if}
-    {#if response?.type === "start"}
-      <span class="message"> {response.message} </span>
+    {#if ["info", "start", "round"].includes(response?.type)}
+      <span class="message animate__zoomInDown"> {message} </span>
     {/if}
   </div>
   <div class="field-block">
@@ -185,7 +193,7 @@
     </div>
     <div class="score-wrapper">
       {#each [1, 2, 3] as item (item)}
-        <div class="score-indicator" class:win={score.home >= item} />
+        <div class="score-indicator" class:win={score[$user.id] >= item} />
       {/each}
     </div>
   </div>
@@ -217,6 +225,9 @@
   }
   :global(.field-block .game-option.disabled svg) {
     fill: #434242;
+  }
+  h1 {
+    margin: 0;
   }
   .message {
     font-size: 20px;
