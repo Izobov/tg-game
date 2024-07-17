@@ -1,4 +1,9 @@
 <script>
+  import { coins } from "../stores/coins";
+  import { cubicOut } from "svelte/easing";
+  import { tweened } from "svelte/motion";
+  import Close from "../assets/close_icon.svelte";
+  import Header from "./../components/Header.svelte";
   import { onMount } from "svelte";
   import Loader from "../components/Loader.svelte";
   import PaperImg from "../assets/paper.svelte";
@@ -9,9 +14,12 @@
   import Rock from "../assets/rock.svelte";
   import Scissors from "../assets/scissors.svelte";
   import Paper from "../assets/paper.svelte";
+  import CloseIcon from "../assets/close_icon.svelte";
   import { feedback } from "../utils/telegram";
   import particles, { particlesMode } from "../stores/particles";
-  import 'animate.css/animate.css';
+  import Modal from "../components/Modal.svelte";
+
+  import "animate.css/animate.css";
 
   let store = websocketStore("ws://localhost:3000/battle/connect");
 
@@ -22,18 +30,35 @@
   let opponentSelect = null;
   let waitingOpponent = false;
   let ended = false;
-  let startagain = false;
-  let prevBattleMessage = "";
+  let startagain = true;
+  let modal_body;
+  let prize = tweened(10, {
+    duration: 1500,
+    easing: cubicOut,
+  });
+  let prevBattleMessage = "You win this battle!";
   const options = [
     { name: "rock", img: Rock, win: "scissors", lose: "paper" },
     { name: "scissors", img: Scissors, win: "paper", lose: "rock" },
     { name: "paper", img: Paper, win: "rock", lose: "scissors" },
   ];
+  setTimeout(() => {
+    // ended = true;
+  }, 1000);
+
+  $: if (ended) {
+    setTimeout(() => {
+      $coins.source = modal_body;
+      $coins.amount = 10;
+      $coins.decreesStore = prize;
+      $coins.show = true;
+    }, 1000);
+  }
   let opponent;
   $: response = $store;
   let round = {},
     type,
-    message = "",
+    message = "You win this battle!",
     score = { home: 0, away: 0 },
     opponentNumber;
   $: ({ type } = response || {});
@@ -73,7 +98,7 @@
     waitingOpponent = false;
     ({ round } = response);
     const { prevRound, score: s } = response;
-    score = {...s}
+    score = { ...s };
     calculateRound(prevRound);
     setTimeout(() => {
       opponentSelect = null;
@@ -85,7 +110,6 @@
   $: if (type === "start") {
     startMatch();
   }
-  $: console.log(score)
 
   function calculateRound(prevRound) {
     opponentSelect = options.find((o) => o.name === prevRound[opponentNumber]);
@@ -101,7 +125,7 @@
     opponent = $store.user;
     ({ round, score } = response);
     opponentNumber = round.user1Id === $user.id ? "user2Choice" : "user1Choice";
-    message = "Make your choice"
+    message = "Make your choice";
     setTimeout(() => {
       start = true;
     }, 1000);
@@ -119,27 +143,11 @@
     selected = option;
     store.set({ type: "choice", choice: option.name });
     choosing = false;
-   
   }
 </script>
 
 <h1>Battle</h1>
 
-<!-- {#if !start}
-  <div class="loader-wrapp">
-    {#if startagain && prevBattleMessage}
-      <span> {prevBattleMessage}</span>
-    {/if}
-    <button on:click={connect}>Start {startagain ? "again" : ""}</button>
-    {#if response?.type === "waiting"}
-      <span> {response.message}</span>
-      <Loader />
-    {/if}
-    {#if response?.type === "start"}
-      <span> {response.message} </span>
-    {/if}
-  </div>
-{:else} -->
 <div class="battle-field">
   <div class="field-block">
     <div class="score-wrapper">
@@ -160,16 +168,13 @@
     </div>
   </div>
   <div class="field-block info">
-    {#if startagain && prevBattleMessage}
-      <span class="message"> {prevBattleMessage}</span>
-    {/if}
     {#if !start}
       <button class="button" on:click={connect}
         >Start {startagain ? "again" : ""}</button
       >
     {/if}
     {#if ["waiting"].includes(response?.type)}
-      <span class="message"> {message}</span>
+      <span class="message animate__zoomInDown"> {message}</span>
       <Loader />
     {/if}
     {#if ["info", "start", "round"].includes(response?.type)}
@@ -201,14 +206,12 @@
 <!-- else content here -->
 <!-- {/if} -->
 {#if ended}
-  <div class="modal">
-    <div class="ended-modal">
-      <span class="message">{message}</span>
-      <span class="token">{prize} RPS</span>
-      <button on:click={reset}> start again </button>
+  <Modal show={ended}>
+    <span slot="title" class="title">{message}</span>
+    <div slot="body" class="modal-body" bind:this={modal_body}>
+      <span class="token">{$prize.toFixed(0)} RPS</span>
     </div>
-  </div>
-  <!-- content here -->
+  </Modal>
 {/if}
 
 <style lang="scss">
@@ -226,12 +229,25 @@
   :global(.field-block .game-option.disabled svg) {
     fill: #434242;
   }
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    min-height: 40px;
+    .token {
+      font-size: 20px;
+      font-weight: 500;
+    }
+  }
+
   h1 {
     margin: 0;
   }
   .message {
     font-size: 20px;
     font-weight: 500;
+    animation-duration: 1s;
   }
   .button {
     padding: 10px 5px;

@@ -16,6 +16,7 @@
   import { loadFull } from "tsparticles"; // if you are going to use `loadFull`, install the "tsparticles" package too.
   import { loadSlim } from "@tsparticles/slim"; // if you are going to use `loadSlim`, install the "@tsparticles/slim" package too.
   import Confetti from "./lib/Confetti.svelte";
+  import CoinsTransition from "./components/CoinsTransition.svelte";
 
   onMount(() => {
     init();
@@ -49,6 +50,7 @@
     <Route path="/tasks" component={Tasks} />
   </main>
   <BottomMenu />
+  <CoinsTransition />
 </Router>
 
 <style>
@@ -59,6 +61,7 @@
     background-color: #242424;
     display: flex;
     flex-direction: column;
+    position: relative;
     gap: 20px;
   }
 </style>
